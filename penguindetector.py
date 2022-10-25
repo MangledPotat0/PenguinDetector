@@ -43,7 +43,7 @@ def penguindetectormaker():
     penguindetector.add(layers.Dense(72, activation = 'tanh',
                                      name = 'dense2'))
 
-    penguindetector.add(layers.Dense(2, activation = 'sigmoid',
+    penguindetector.add(layers.Dense(1, activation = 'sigmoid',
                                      name = 'final'))
 
     penguindetector.build((1,750,750,3))
@@ -61,14 +61,14 @@ if __name__ == '__main__':
                         batch_size = 8,
                         image_size = (750, 750),
                         color_mode = 'rgb',
-                        label_mode = 'categorical')
+                        label_mode = 'binary')
 
     validation = image_dataset_from_directory(
                         'imgs/test',
                         batch_size = 8,
                         image_size = (750, 750),
                         color_mode = 'rgb',
-                        label_mode = 'categorical')
+                        label_mode = 'binary')
 
     print(pd.summary())
     run = input('run?')
