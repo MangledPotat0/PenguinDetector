@@ -9,33 +9,44 @@ import pickle
 def penguindetectormaker():
 
     penguindetector = Sequential(name = 'penguin')
+
+    penguindetector.add(layers.RandomRotation((-0.5,0.5),
+                                              fill_mode='constant',
+                                              interpolation='bilinear',
+                                              seed=None,
+                                              fill_value=0.0))
     
-    penguindetector.add(layers.Conv2D(6, (30, 30), activation = 'relu',
+    penguindetector.add(layers.Conv2D(8, (25, 25), activation = 'relu',
                                input_shape = (None, None, 3),
                                name = 'conv1'))
-    penguindetector.add(layers.MaxPooling2D(pool_size = (3,3)))
+    penguindetector.add(layers.MaxPooling2D(pool_size = (2,2)))
 
-    penguindetector.add(layers.Conv2D(6, (20, 20), activation = 'relu',
+    penguindetector.add(layers.Conv2D(16, (15, 15), activation = 'relu',
                                input_shape = (None, None, 3),
                                name = 'conv2'))
-    penguindetector.add(layers.MaxPooling2D(pool_size = (3,3)))
+    penguindetector.add(layers.MaxPooling2D(pool_size = (2,2)))
 
-    penguindetector.add(layers.Conv2D(6, (10, 10), activation = 'relu',
+    penguindetector.add(layers.Conv2D(32, (10, 10), activation = 'relu',
                                input_shape = (None, None, 3),
                                name = 'conv3'))
-    penguindetector.add(layers.MaxPooling2D(pool_size = (3,3)))
 
-    penguindetector.add(layers.GlobalMaxPooling2D())
+    penguindetector.add(layers.Dropout(0.2))
 
-    penguindetector.add(layers.Dense(120, activation = 'tanh',
+    #penguindetector.add(layers.GlobalMaxPooling2D())
+
+    penguindetector.add(layers.Flatten())
+
+
+    penguindetector.add(layers.Dense(144, activation = 'tanh',
                                      name = 'dense1'))
 
-    penguindetector.add(layers.Dense(60, activation = 'tanh',
+    penguindetector.add(layers.Dense(72, activation = 'tanh',
                                      name = 'dense2'))
 
-    penguindetector.add(layers.Dense(1, activation = 'sigmoid',
+    penguindetector.add(layers.Dense(2, activation = 'sigmoid',
                                      name = 'final'))
 
+    penguindetector.build((1,750,750,3))
     penguindetector.compile(loss = 'binary_crossentropy', optimizer = 'Adam')
 
     return(penguindetector)
@@ -47,25 +58,27 @@ if __name__ == '__main__':
 
     training = image_dataset_from_directory(
                         'imgs/train',
-                        batch_size = 1,
+                        batch_size = 8,
                         image_size = (750, 750),
                         color_mode = 'rgb',
-                        label_mode = 'binary')
+                        label_mode = 'categorical')
 
     validation = image_dataset_from_directory(
                         'imgs/test',
-                        batch_size = 1,
+                        batch_size = 8,
                         image_size = (750, 750),
                         color_mode = 'rgb',
-                        label_mode = 'binary')
+                        label_mode = 'categorical')
 
     print(pd.summary())
+    run = input('run?')
     
-    hist = pd.fit(x = training,
-                  epochs = 4,
-                  validation_data = validation)
+    if run=='yes':
+        hist = pd.fit(x = training,
+                      epochs = 12,
+                      validation_data = validation)
 
-    with open('history.pkl', 'wb+') as hf:
-        pickle.dump(hist.history, hf)
-    pd.save('penguindetector.mdl')
+        with open('history.pkl', 'wb+') as hf:
+            pickle.dump(hist.history, hf)
+        pd.save('penguindetector.mdl')
 

@@ -6,9 +6,10 @@ from PIL import Image
 def find_penguins(image):
     pd = keras.models.load_model('penguindetector.mdl')
     #data = Image.open(image)
-    #size = data.size
-    #data = np.resize(data, (1, size[0], size[1], 3))
-    data = cv.imread(image).resize(1,500,500,3)
+    data = cv.imread(image)
+    data = cv.resize(data, (750,750), interpolation=cv.INTER_LINEAR)
+    data = np.resize(data, (1, 750, 750, 3))
+    print(np.shape(data))
     output = pd.predict(data)
     print(output)
 
