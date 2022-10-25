@@ -1,3 +1,4 @@
+import os
 from keras.models import Sequential
 from keras import layers
 from tensorflow.keras.preprocessing import image_dataset_from_directory
@@ -6,16 +7,19 @@ from PIL import Image
 import numpy as np
 import pickle
 
+root_logdir = os.path.join(os.curdir, 'penguin_logs')
+
+
+def get_run_logdir():
+    import time
+    run_id = time.strftime('run_%Y%m%d-%H%M%S')
+    return os.path.join(root_logdir, run_id)
+
+
 def penguindetectormaker():
 
     penguindetector = Sequential(name = 'penguin')
 
-    penguindetector.add(layers.RandomRotation((-0.5,0.5),
-                                              fill_mode='constant',
-                                              interpolation='bilinear',
-                                              seed=None,
-                                              fill_value=0.0))
-    
     penguindetector.add(layers.Conv2D(8, (25, 25), activation = 'relu',
                                input_shape = (None, None, 3),
                                name = 'conv1'))
@@ -74,9 +78,12 @@ if __name__ == '__main__':
     run = input('run?')
     
     if run=='yes':
+        run_logdir = get_run_logdir()
+        tensorboard_cb = keras.callbacks.TensorBoard(run_logdir)
         hist = pd.fit(x = training,
-                      epochs = 12,
-                      validation_data = validation)
+                      epochs = 10,
+                      validation_data = validation,
+                      callacks = [tensorboard_cb])
 
         with open('history.pkl', 'wb+') as hf:
             pickle.dump(hist.history, hf)
